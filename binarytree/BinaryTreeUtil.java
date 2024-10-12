@@ -385,5 +385,238 @@ public class BinaryTreeUtil {
         }
     }
 
-}
+    // The maximum width of a Binary Tree is the maximum diameter among all its levels. 
+    // The width or diameter of a level is the number of nodes between the leftmost and rightmost nodes.
+    public int widthOfBinaryTree(Node root) {
+        // If the root is null,
+        // the width is zero
+        if (root == null) {
+            return 0;
+        }
 
+        // Initialize a variable 'ans'
+        // to store the maximum width
+        int ans = 0;
+
+        // Create a queue to perform level-order
+        // traversal, where each element is a pair
+        // of Node and its position in the level
+        Queue<Pair<Node, Integer>> q = new LinkedList<>();
+        // Push the root node and its
+        // position (0) into the queue
+        q.add(new Pair<>(root, 0));
+
+        // Perform level-order traversal
+        while (!q.isEmpty()) {
+            // Get the number of
+            // nodes at the current level
+            int size = q.size();
+            // Get the position of the front
+            // node in the current level
+            int mmin = q.peek().getValue();
+
+            // Store the first and last positions
+            // of nodes in the current level
+            int first = 0, last = 0;
+
+            // Process each node
+            // in the current level
+            for (int i = 0; i < size; i++) {
+                // Calculate current position relative
+                // to the minimum position in the level
+                int cur_id = q.peek().getValue() - mmin;
+                // Get the current node
+                Node node = q.peek().getKey();
+                // Poll the front node from the queue
+                q.poll();
+
+                // If this is the first node in the level,
+                // update the 'first' variable
+                if (i == 0) {
+                    first = cur_id;
+                }
+
+                // If this is the last node in the level,
+                // update the 'last' variable
+                if (i == size - 1) {
+                    last = cur_id;
+                }
+
+                // Enqueue the left child of the
+                // current node with its position
+                if (node.left != null) {
+                    q.add(new Pair<>(node.left, cur_id * 2 + 1));
+                }
+
+                // Enqueue the right child of the
+                // current node with its position
+                if (node.right != null) {
+                    q.add(new Pair<>(node.right, cur_id * 2 + 2));
+                }
+            }
+
+            // Update the maximum width by calculating
+            // the difference between the first and last
+            // positions, and adding 1
+            ans = Math.max(ans, last - first + 1);
+        }
+
+        // Return the maximum
+        // width of the binary tree
+        return ans;
+        // The time complexity of this method is O(n), where n is the number of nodes in the binary tree. 
+        // This is because the method performs a level-order traversal of the tree, visiting each node once.
+        // The space complexity of this method is O(w), where w is the maximum width of the binary tree. 
+        // This is because the method uses a queue to perform the level-order traversal, 
+        // and the maximum number of nodes in the queue at any given time is equal to the width of the tree.
+    }
+    
+
+    // Method to get diameter of binary tree
+    public static int diameterOfBinaryTree(Node root) {
+        if (root == null) {
+            return 0;
+        }
+        
+        // Calculate the height of the left and right subtrees
+        int leftHeight = height(root.left);
+        int rightHeight = height(root.right);
+        
+        // Calculate the diameter recursively for the left and right subtrees
+        int leftDiameter = diameterOfBinaryTree(root.left);
+        int rightDiameter = diameterOfBinaryTree(root.right);
+        
+        // Return the maximum of the following:
+        // 1. Diameter of the left subtree
+        // 2. Diameter of the right subtree
+        // 3. Height of the left subtree + Height of the right subtree + 1 (for the current node)
+        return Math.max(leftHeight + rightHeight + 1, Math.max(leftDiameter, rightDiameter));
+    }
+
+    // method to calculate the height of a binary tree
+    private static int height(Node node) {
+        if (node == null) {
+            return 0;
+        }
+        
+        // Calculate the height recursively for the left and right subtrees
+        int leftHeight = height(node.left);
+        int rightHeight = height(node.right);
+        
+        // Return the maximum height of the left and right subtrees + 1 (for the current node)
+        return Math.max(leftHeight, rightHeight) + 1;
+    }
+
+    // Method to check if a binary tree is height-balanced
+    // height diffrence should be <= 1
+    public static boolean isHeightBalanced(Node root) {
+        if (root == null) {
+            return true;
+        }
+        
+        // Calculate the height of the left and right subtrees
+        int leftHeight = height(root.left);
+        int rightHeight = height(root.right);
+        
+        // Check if the absolute difference between the heights of the left and right subtrees is less than or equal to 1
+        if (Math.abs(leftHeight - rightHeight) <= 1) {
+            // Recursively check if the left and right subtrees are height-balanced
+            boolean isLeftBalanced = isHeightBalanced(root.left);
+            boolean isRightBalanced = isHeightBalanced(root.right);
+            
+            // Return true if both subtrees are height-balanced, otherwise return false
+            return isLeftBalanced && isRightBalanced;
+        }
+        
+        // If the absolute difference between the heights of the left and right subtrees is greater than 1, the tree is not height-balanced
+        return false;
+    }
+
+    // Method to find the lowest common ancestor (LCA) of two nodes in a binary tree
+    public static Node findLCA(Node root, Node node1, Node node2) {
+        if (root == null || root == node1 || root == node2) {
+            return root;
+        }
+
+        // Recursively search for the LCA in the left and right subtrees
+        Node leftLCA = findLCA(root.left, node1, node2);
+        Node rightLCA = findLCA(root.right, node1, node2);
+
+        // If both nodes are found in different subtrees, then the current node is the LCA
+        if (leftLCA != null && rightLCA != null) {
+            return root;
+        }
+
+        // If only one node is found, return that node as the LCA
+        if (leftLCA != null) {
+            return leftLCA;
+        }
+        if (rightLCA != null) {
+            return rightLCA;
+        }
+
+        // If neither node is found, return null
+        return null;
+    }
+
+    // Method to check if a binary tree is symmetric
+    public static boolean isSymmetric(Node root) {
+        if (root == null) {
+            return true;
+        }
+        return isMirror(root.left, root.right);
+    }
+
+    // method to check if two trees are mirror images of each other
+    private static boolean isMirror(Node node1, Node node2) {
+        if (node1 == null && node2 == null) {
+            return true;
+        }
+        if (node1 == null || node2 == null) {
+            return false;
+        }
+        return (node1.data == node2.data) && isMirror(node1.left, node2.right) && isMirror(node1.right, node2.left);
+    }
+
+    // method to check if binary tree is mirror of itself or not
+    public static boolean isMirrorOfItself(Node root) {
+        if (root == null) {
+            return true;
+        }
+        
+        // Create two stacks to store nodes
+        Stack<Node> stack1 = new Stack<>();
+        Stack<Node> stack2 = new Stack<>();
+        
+        // Push the root node twice onto the stacks
+        stack1.push(root);
+        stack2.push(root);
+        
+        // Perform iterative preorder traversal
+        while (!stack1.isEmpty() && !stack2.isEmpty()) {
+            Node node1 = stack1.pop();
+            Node node2 = stack2.pop();
+            
+            if (node1 == null && node2 == null) {
+                continue;
+            }
+            if (node1 == null || node2 == null) {
+                return false;
+            }
+            if (node1.data != node2.data) {
+                return false;
+            }
+            
+            // Push the left and right child nodes onto stack1 in reverse order
+            stack1.push(node1.left);
+            stack1.push(node1.right);
+            
+            // Push the right and left child nodes onto stack2 in reverse order
+            stack2.push(node2.right);
+            stack2.push(node2.left);
+        }
+        
+        // Return true if the tree is symmetric
+        return true;
+    }
+}
